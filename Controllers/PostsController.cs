@@ -1,11 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Blog.DotNetCoreMongoDb.Repository;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
 
 namespace Blog.DotNetCoreMongoDb.Controllers
 {
@@ -13,24 +8,25 @@ namespace Blog.DotNetCoreMongoDb.Controllers
     public class PostsController : Controller
     {
 
-        protected static IMongoClient _client;
-        protected static IMongoDatabase _database;
-        protected IMongoCollection<PostModel> _collection;
-
+        protected PostsRepository _repository;
         public PostsController()
         {
-            _client = new MongoClient();
-            _database = _client.GetDatabase("demoDb");
-            _collection = _database.GetCollection<PostModel>("posts");
+            _repository = new PostsRepository();
         }
 
         // GET api/posts
         [HttpGet]
-        public List<PostModel> Get(string jsonQuery = "{}")
+        public List<PostModel> Get(string jsonQuery = "")
         {
-            var queryDoc = new QueryDocument(BsonSerializer.Deserialize<BsonDocument>(jsonQuery));
-            Console.WriteLine(queryDoc);
-            return _collection.Find<PostModel>(queryDoc).ToList();
+            if (jsonQuery == "") return _repository.SelectAll();
+
+            return _repository.Filter(jsonQuery);
+        }
+
+        public PostModel Post(PostModel postModel, string id = "")
+        {
+            if (id == "") return _repository.InsertPost(postModel);
+            return _repository.UpdatePost(id, postModel);
         }
     }
 }

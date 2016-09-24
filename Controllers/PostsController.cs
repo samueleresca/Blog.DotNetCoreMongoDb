@@ -7,7 +7,6 @@ namespace Blog.DotNetCoreMongoDb.Controllers
     [Route("api/[controller]")]
     public class PostsController : Controller
     {
-
         protected PostsRepository _repository;
         public PostsController()
         {
